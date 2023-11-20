@@ -1,0 +1,57 @@
+#!/bin/bash
+function show_ipinfo()
+{
+IP_VAR=`ifconfig|grep "inet"|tr -s " " ":"|cut -f3 -d ":"`
+
+DGW_VAR=`ip route show|grep "default"|tr -s " " ":"|cut -f3 -d":"`
+
+echo "IP ADDRESSES:" $IP_VAR
+
+echo "DEFAULT GATEWAY:" $DGW_VAR
+
+cat /etc/resolv.conf|grep "nameserver"|grep -v "#"
+}
+show_ipinfo
+
+
+function total_space_used_yaml()
+{
+clear; let totalsize=0; let currensize=0
+
+for i in Desktop/*.yaml
+do
+        let currentsize=`ls -l $i | tr -s " " | cut -f5 -d " "`
+        let totalsize=$totalsize+$currentsize
+done
+
+echo "The total space used is "$totalsize "bytes." | tee /html_file_results.txt
+}
+total_space_used_yaml
+
+# chmod +rx filename.sh
+# bash filename.sh or ./filename.sh
+
+
+# chmod 4755 backup.sh
+function full_backup
+day=`date +"%d"`
+year=`date +"%Y"`
+month=`date +"%m"`
+
+{
+tar -czvf full_backup-$year-$month-$day.tar.gz /home 2>/dev/null >> full_back>l_backup_log.log
+}
+
+weekday=`date | tr -s " " | cut -f1 -d " "`
+
+case $weekday in
+"ven.")full_backup; echo "BACKUP WAS SUCCESSFUL";;
+"lun."|"mar."|"mer."|"jeu.");;
+esac
+
+full_backup
+
+# SCHEDULE A BACKUP SCRIPT
+# crontab -e
+# choose 1
+# 0 0 * * 6 /home/patrick/backup.sh
