@@ -1,0 +1,196 @@
+To edit text files: Vim, Nano, and Gedit
+
+vim linux-distributions.txt
+Distributions
+CentOS - similar to Red Hat Enterprise Linux
+Fedora - solid end user Linux distribution
+Ubuntu - one of the most popular Linux distributions
+Mint - a very user-friendly Linux distribution
+
+To confirm that the file exists: ls
+
+While still in Command Mode, gg (lowercase) characters: the cursor moves to the first line of the file
+G (uppercase) character: the cursor moves to the last line of the file.
+Select dd: To delete a line
+
+nano linux-distributions.txt
+Add a new line: Mint - a very user-friendly Linux distribution
+
+Select Ctrl O to save your changes and then select Enter.
+Select Ctrl X to exit the Nano text editor.
+
+On CentOS 7, Select Accessories, and then select Text Editor to open the Gedit text editor.
+Select the Open menu and then type the linux-distributions.txt file name to open the file with the Gedit text editor.
+
+Append to linux-distributions.txt text file: distrowatch.com - a good place from which to download Linux distributions
+
+
+- Back up and restore files by using tar and cpio
+mkdir data
+cd data
+touch fileA fileB fileC
+
+To back up the files by using tar: tar -cf backup.tar f*
+To confirm that the backup.tar file exists: ls
+To simulate the loss of your data: rm f*
+To restore the files by using tar: tar -xf backup.tar
+Observe that the three files have been restored: ls
+
+To back up and restore the same files: ls f* | cpio -o > backup.cpio
+To simulate the loss of your data: rm f*
+To restore the files by using cpio: cpio -iv < backup.cpio
+ls
+
+
+- Manage files and directories
+Creating and deleting directories/files, copying/moving/viewing files
+
+To change to the home directory: cd
+To display your current location in the filesystem: pwd
+
+mkdir salesdata
+cd salesdata
+touch file1 file2 file3
+
+To create a subdirectory named July inside the salesdata directory: mkdir July
+ls
+
+To move the file1 to the July directory: mv file1 July
+To copy the file2 file to the July directory: cp file2 July
+To delete file3: rm file3
+
+To confirm the above: ls
+ls July
+
+To display the contents of the current directory with various information: ls -a
+ls -l
+ls -la
+
+To delete the July directory and all of its contents: rm -R July
+ls
+
+
+- Manage storage
+Get root privileges by using sudo su - root
+To display information about storage on the system: cat /proc/partitions
+lsblk
+blkid
+
+To display partition information by using fdisk: fdisk -l /dev/sda
+
+To open fdisk to create a new partition on /dev/sda: fdisk /dev/sda
+
+Select the m option in fdisk to display the menu of available options.
+p: to display the current partition information.
+n: to create a new partition.
+e: to create a new extended partition ?
+
+Select Enter to accept the first sector.
+Select Enter to accept the last sector.
+
+Select p to display the current partition information and observe the new partition at the bottom of the list.
+w: to save the changes to the partition table.
+
+To update the partition information: partprobe
+
+To display information about storage on the system, including the new sda4 partition: cat /proc/partitions
+lsblk
+
+
+- Configure links
+Links permit users to access data from different parts of the filesystem.
+
+To create a new file by using Vim: vim original.txt
+Link Test Document
+
+cat original.txt
+
+To create a hard link to the original.txt file: ln /root/original.txt /tmp/hardlink.txt
+To display the contents of the hardlink.txt file: cat /tmp/hardlink.txt
+
+To create a symbolic link to the original.txt file: ln -s /root/original.txt /tmp/symlink.txt
+To display the contents of the symlink.txt file: cat /tmp/symlink.txt
+
+To display the contents of the /tmp directory and then observe that the symlink.txt file points to the /root/original.txt file: ls -l /tmp
+
+
+- Use the find command
+The find command searches the actual filesystem, while the locate command uses an index database to search for files.
+
+To verify that your pwd is the root user's home directory: cd ~
+
+To create a file that can be searched for by using find: touch /tmp/FindMe.txt
+
+To search for the /tmp/FindMe.txt file by using the find command: find /tmp -iname findme.txt
+
+To search for files owned by root by using the find command and the root owner name: find /tmp -user root
+
+To search for files owned by root and then filtering the results for .txt files: find /tmp -user root | grep .txt
+
+
+- Configure standard permissions
+Standard Linux permissions are configured by using the chmod command. The command accepts permissions in two formats: Symbolic mode and Absolute modes.
+
+To verify that your present working directory is the root user's home directory: cd ~
+mkdir permissions
+cd permissions
+
+mkdir DirA
+touch file1
+
+To display the current permissions for DirA and file1: ls -l
+
+* Run the ls -l command after each of the following steps to display the permissions changes you have made.
+
+To grant the execute permission to user01 for file1 by using Symbolic mode: chmod u+x file1
+
+To remove the read and execute permissions to others for DirA by using Symbolic mode: chmod o-rx DirA
+Use the -v option with the chmod command to display the changes made.
+
+To grant the read, write, and execute permissions to the owner and group identities, and remove all permissions for others to file1 by using Absolute mode: chmod 770 file1
+
+To grant the read, write, and execute permissions to the owner, and no access to group and others for DirA by using Absolute mode: chmod 700 DirA
+
+Standard permissions only allow to configure permissions for 3 identities: user (owner), group, and all others.
+
+
+- Configure ACL permissions
+Access Control Lists permit Linux administrators to configure permissions for more than one user and one group. ACLs overcome the limitations of standard permissions.
+
+To verify that your present working directory is the /root/permissions directory: cd ~/permissions
+
+To display the current ACL for the file1 file: getfacl file1
+
+You should see permissions set only for the root user account and for the root group.
+
+To create a new group named "auditors": groupadd auditors
+
+To configure an ACL that grants the read permission to the auditors group for file1: setfacl -m g:auditors:r-- /root/permissions/file1
+
+To display the updated ACL for the file1 file: getfacl file1
+You should see permissions set only for the root user account, for the root group, and for the auditors group.
+
+
+- Configure advanced permissions
+cd
+
+To create a directory named /projects: mkdir /projects
+
+To set a combination of the Sticky Bit and the SGID special permissions on the /projects directory and its contents by using Absolute mode: chmod -R 3766 /projects
+
+To display the changes to the permissions for the /projects directory: ls -ld /projects
+
+When you run the ls -ld /projects command, your output should include drwxrwSrwT for the directory. This output indicates the SGID and Sticky Bit permissions have been set for the directory.
+
+To create a simulated script file named script.sh: touch /projects/script.sh
+
+To set the SUID special permission on the script.sh file in the /projects directory by using Symbolic Mode: chmod u+s /projects/script.sh
+
+When you run the ls -l /projects command, your output should include rwS for the user permissions. This output indicates the SUID permission has been set for the file.
+
+* Used Vim, Nano, and Gedit to edit text files
+* Backed up and restored files by using tar and cpio
+* Managed files and directories
+* Configured links
+* Searched for files by using the find command
+* Configured standard, ACL, and advanced permissions
